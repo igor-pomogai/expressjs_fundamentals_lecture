@@ -8,31 +8,35 @@ function getUnicId() {
 
 function addUser (name, password) {
 	var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-	obj.push({name: name, password: password, id: getUnicId()});	
+	id = getUnicId();
+	obj.push({name: name, password: password, id: id});	
 	fs.writeFileSync('users.json', JSON.stringify(obj));
+	return id;
 }
 
 function removeUser (id) {
 	var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-	obj = obj.filter(function(item) {
-		return item.id !== id;});
-	fs.writeFileSync('users.json', JSON.stringify(obj));
+	objNew = obj.filter(function(item) {
+		return item.id !== +id;
+	});
+	fs.writeFileSync('users.json', JSON.stringify(objNew));
+	return id;
 }
 
 function getUserList() {
 	var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-	obj = obj.map(function(item) {
-		delete item.password;
-		return item;
+	var arrToString = '';
+	obj.forEach(function(item) {
+		arrToString = arrToString + 'id: ' + item.id + ', name: ' + item.name + '\n';
 	});
-	return obj;
+	return arrToString;
 }
 
 function getUserById(id) {
 	var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
 	obj = obj.filter(function(item) {
 		return item.id === +id.id;});
-	return obj[0].name;
+	return (obj[0])? obj[0].name : false;
 }
 
 module.exports = {
