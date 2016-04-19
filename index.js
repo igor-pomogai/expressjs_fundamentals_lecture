@@ -16,36 +16,52 @@ app.use(function (req, res, next) {
 	}
 });
 
-app.get('/users', function (req, res) {
-	res.send(dataAccess.getUserList());
+app.get('/users', function (req, res, next) {
+	dataAccess.getUserList(function(err, users) {
+		if (err && err.status) return next(new httpError(err.status, err.message));
+		if (err) return next(err);
+		res.send(users);
+	});
 });
 
-app.post('/users', function (req, res) {
-	if (req.body.name.length < 3 || req.body.password.length < 8) {
-		throw new httpError(406, 'Not acceptable inputs length');
-	}
-	res.send('ID of new user is ' + dataAccess.addUser(req.body.name, req.body.password));
+app.get('/users/:id', function (req, res, next) {
+	dataAccess.getUserById(req.params.id, function(err, userName) {
+		if (err && err.status) return next(new httpError(err.status, err.message));
+		if (err) return next(err);
+		res.send(userName);
+	});
 });
 
-app.get('/users/:id', function (req, res) {
-	if (dataAccess.getUserById(req.params)) {
-		res.send(dataAccess.getUserById(req.params));	
-	} else {
-		throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
-	}	
+app.delete('/users/:id', function (req, res, next) {
+	dataAccess.removeUser(req.params.id, function(err) {
+		if (err && err.status) return next(new httpError(err.status, err.message));
+		if (err) return next(err);
+		res.send('You\'ve deleted user with ID ' + req.params.id);
+	});
 });
 
-app.delete('/users', function (req, res) {
-	if (dataAccess.getUserById(req.body)) {
-		res.send('You\'ve deleted user with ID ' + dataAccess.removeUser(req.body.id));	
-	} else {
-		throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
-	}
+app.post('/users', function (req, res, next) {
+	var user = {name: req.body.name, password: req.body.password};
+	dataAccess.addUser(user, function(err, userId) {
+		if (err && err.status) return next(new httpError(err.status, err.message));
+		if (err) return next(err);
+		res.send('You\'ve created new user, ID = ' + userId);
+	});
 });
 
 app.use(function(req, res, next) {
-	throw new httpError(400, 'Bad Request \n Use: \n - get + /users[id] \n - post + /users \n - delete + /users ');
+	next(new httpError(400, 'Bad Request \n Use: \n - get + /users/[id] \n - post + /users \n - delete + /users/id'));
 });
+
+app.use(function(err, req, res, next) {
+	if (err instanceof httpError) {
+		res.status(err.status).send(err.message);
+	} else {
+		res.send('Unknown error:\n' + err);
+		// throw err;
+	}
+});
+
 
 app.listen(3000, function () {
 	console.log('Example app listening on port 3000!');

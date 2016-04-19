@@ -1,39 +1,109 @@
 var fs = require('fs');
+var uuid = require('uuid');
 
 module.exports = {
-	addUser: function(name, password) {
-		var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-		id = getUnicId();
-		obj.push({name: name, password: password, id: id});	
-		fs.writeFileSync('users.json', JSON.stringify(obj));
-		return id;
-	},
-	removeUser: function  (id) {
-		var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-		objNew = obj.filter(function(item) {
-			return item.id !== +id;
-		});
-		fs.writeFileSync('users.json', JSON.stringify(objNew));
-		return id;
-	},
-	getUserList: function() {
-		var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-		var arrToString = '';
-		obj.forEach(function(item) {
-			arrToString = arrToString + '\nid: ' + item.id + ', name: ' + item.name;
-		});
-		return arrToString;
-	},
-	getUserById: function(id) {
-		var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-		obj = obj.filter(function(item) {
-			return item.id === +id.id;});
-		return (obj[0])? obj[0].name : false;
-	}
+	addUser: addUser,
+	removeUser: removeUser,
+	getUserList: getUserList,
+	getUserById: getUserById
 };
 
-function getUnicId() {
-	var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
-	obj.sort(function(a, b) {return a.id < b.id;});
-	return obj[0].id + 1;
+
+function getUserList(cb) {
+	fs.readFile('users.json', {encoding: 'utf-8'}, function(err, data) {
+		if (err) {
+			return cb(err);
+		}
+		var users;
+		try {
+			users = JSON.parse(data);
+		} catch(e) {
+			return cb(e);
+		}	
+		cb(null, users);		
+	});
+}
+
+function getUserById(userId, cb) {
+	fs.readFile('users.json', {encoding: 'utf8'}, function(err, data) {
+		if (err) {
+			return cb(err);
+		}
+		var users;
+		try {
+			users = JSON.parse(data);
+		} catch(e) {
+			return cb(e);
+		}
+		var userArr = users.filter(function(item) {
+			return item.id === userId;
+		});
+		if (userArr.length === 0) {
+			return cb({
+				status: 404,
+				message: 'No user with this ID'
+			});
+		} else {
+			cb(null, userArr[0].name);
+		}
+	});
+}
+
+function removeUser(userId, cb) {
+	fs.readFile('users.json', {encoding: 'utf8'}, function(err, data) {
+		if (err) {
+			return cb(err);
+		}
+		var users;
+		try {
+			users = JSON.parse(data);	
+		} catch(e) {
+			return cb(e);
+		}
+		var usersNew = users.filter(function(item) {
+			return item.id !== userId;
+		});
+		if (usersNew.length !== users.length - 1) {
+			return cb({
+				status: 404,
+				message: 'No user with this ID'
+			});
+		} else {
+			fs.writeFile('users.json', JSON.stringify(usersNew), function(err) {
+				if (err) {
+					return cb(err);
+				}
+				cb();
+			});
+		}
+	});
+}
+
+function addUser(user, cb) {
+	fs.readFile('users.json', {encoding: 'utf8'}, function(err, data) {
+		if (err) {
+			return cb(err);
+		}
+		var users;
+		try {
+			users = JSON.parse(data);	
+		} catch(e) {
+			return cb(e);
+		}
+		if (user.name.length < 3 || user.password.length < 3) {
+			return cb({
+				status: 400,
+				message: 'Not acceptable inputs length'
+			});
+		} else {
+			var userId = uuid.v4();
+			users.push({name: user.name, password: user.password, id: userId});
+			fs.writeFile('users.json', JSON.stringify(users), function(err) {
+				if (err) {
+					return cb(err);
+				}
+				cb(null, userId);
+			});
+		}
+	});
 }
