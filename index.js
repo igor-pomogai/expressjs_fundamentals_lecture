@@ -27,42 +27,25 @@ app.post('/users', function (req, res) {
 	res.send('ID of new user is ' + dataAccess.addUser(req.body.name, req.body.password));
 });
 
-app.use('/users/:id', function (req, res, next) {
-	if (req.method === 'GET') {
-		if (dataAccess.getUserById(req.params)) {
-			next();
-		} else 
-		throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
-	} else {
-		next();
-	}
-});
-
 app.get('/users/:id', function (req, res) {
-	res.send(dataAccess.getUserById(req.params));
-});
-
-
-app.use('/users', function (req, res, next) {
-	if (req.method === 'DELETE') {
-		if (dataAccess.getUserById(req.body) !== false) {
-			next();
-		} else {
-			throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
-		}
+	if (dataAccess.getUserById(req.params)) {
+		res.send(dataAccess.getUserById(req.params));	
 	} else {
-		next();
-	}
+		throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
+	}	
 });
 
 app.delete('/users', function (req, res) {
-	res.send('You\'ve deleted user with ID ' + dataAccess.removeUser(req.body.id));	
+	if (dataAccess.getUserById(req.body)) {
+		res.send('You\'ve deleted user with ID ' + dataAccess.removeUser(req.body.id));	
+	} else {
+		throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
+	}
 });
 
 app.use(function(req, res, next) {
 	throw new httpError(400, 'Bad Request \n Use: \n - get + /users[id] \n - post + /users \n - delete + /users ');
 });
-
 
 app.listen(3000, function () {
 	console.log('Example app listening on port 3000!');
