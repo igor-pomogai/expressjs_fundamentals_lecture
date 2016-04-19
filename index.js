@@ -24,17 +24,33 @@ app.post('/users', function (req, res) {
 	res.send('ID of new user is ' + dataAccess.addUser(req.body.name, req.body.password));
 });
 
-app.use(function checkId(req, res, next) {
-	console.log(req);
-	if (dataAccess.getUserById(req.params)) {
-		next();
-	} else {
-		throw new httpError(400, 'Bad Request \n No user with such ID\n check ID with: get + /users');
-	}
-});
+// app.use('/users/:id', function (req, res, next) {
+// 	if (req.method === 'GET') {
+// 		if (dataAccess.getUserById(req.params)) {
+// 			next();
+// 		} else {
+// 			throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
+// 		}	
+// 	} else {
+// 		next();
+// 	}
+// });
 
 app.get('/users/:id', function (req, res) {
 	res.send(dataAccess.getUserById(req.params));
+});
+
+
+app.use('/users', function (req, res, next) {
+	if (req.method === 'DELETE') {
+		if (dataAccess.getUserById(req.body) !== false) {
+			next();
+		} else {
+			throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
+		}
+	} else {
+		next();
+	}
 });
 
 app.delete('/users', function (req, res) {
