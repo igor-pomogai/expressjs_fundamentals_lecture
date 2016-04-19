@@ -21,20 +21,22 @@ app.get('/users', function (req, res) {
 });
 
 app.post('/users', function (req, res) {
+	if (req.body.name.length < 3 || req.body.password.length < 8) {
+		throw new httpError(406, 'Not acceptable inputs length');
+	}
 	res.send('ID of new user is ' + dataAccess.addUser(req.body.name, req.body.password));
 });
 
-// app.use('/users/:id', function (req, res, next) {
-// 	if (req.method === 'GET') {
-// 		if (dataAccess.getUserById(req.params)) {
-// 			next();
-// 		} else {
-// 			throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
-// 		}	
-// 	} else {
-// 		next();
-// 	}
-// });
+app.use('/users/:id', function (req, res, next) {
+	if (req.method === 'GET') {
+		if (dataAccess.getUserById(req.params)) {
+			next();
+		} else 
+		throw new httpError(400, 'Not found \nNo user with such ID\ncheck ID with: get + /users');
+	} else {
+		next();
+	}
+});
 
 app.get('/users/:id', function (req, res) {
 	res.send(dataAccess.getUserById(req.params));

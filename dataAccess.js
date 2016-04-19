@@ -27,7 +27,7 @@ function getUserList() {
 	var obj = JSON.parse(fs.readFileSync('users.json', 'utf8'));
 	var arrToString = '';
 	obj.forEach(function(item) {
-		arrToString = arrToString + 'id: ' + item.id + ', name: ' + item.name + '\n';
+		arrToString = arrToString + '\nid: ' + item.id + ', name: ' + item.name;
 	});
 	return arrToString;
 }
