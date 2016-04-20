@@ -59,7 +59,6 @@ app.use(function(err, req, res, next) {
 		res.status(err.status).send(err.message);
 	} else {
 		res.send('Unknown error:\n' + err);
-		// throw err;
 	}
 });
 
