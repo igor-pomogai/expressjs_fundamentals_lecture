@@ -41,7 +41,7 @@ exports.delUsr = function (id, cb) {
 
         cb(null, users);
     });
-}
+};
 
 exports.getUsrById = function (id, cb) {
     fs.readFile('./users.json', {encoding: 'utf-8'}, function (err, data) {

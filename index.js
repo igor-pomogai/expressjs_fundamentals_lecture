@@ -1,25 +1,32 @@
 var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
-var HttpError = require('./middleware/errorHandling');
-var authChecker = require('./middleware/authChecker');
+var session = require('express-session');
 
-app = express();
+var app = express();
 
-app.use(HttpError.HttpError);
-app.use(authChecker.authChecker);
+app.use(session({
+    secret: '2C44-4D44-WppQ38S',
+    resave: true,
+    saveUninitialized: true
+}));
 
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false, limit: '1mb'}));
+app.use(bodyParser.urlencoded({extended: true, limit: '1mb'}));
 app.use(morgan('dev'));
 
 require('./routes')(app);
 
-app.get('/', function (request, response) {
-    response.send('It works!\n');
+app.set( 'port', process.env.PORT || 3001 );
+
+app.get('/',function (req, res) {
+    res.send('Please login');
 });
 
-app.listen(3000);
-console.log('Yay');
-
+var server = app.listen(
+    app.get( 'port' ),
+    function() {
+        console.log( 'Checklist server listening at port: '
+            + server.address().port ); }
+);
