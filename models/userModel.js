@@ -1,6 +1,6 @@
-exports.User = function (req) {
-    this.name = req.name;
-    this.surname = req.surname;
-    this.email = req.email;
-    this.password = req.password;
-}
+exports.User = function (reqBody) {
+    this.name = reqBody.name;
+    this.surname = reqBody.surname;
+    this.email = reqBody.email;
+    this.password = reqBody.password;
+};

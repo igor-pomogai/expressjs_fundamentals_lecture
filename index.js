@@ -20,10 +20,6 @@ require('./routes')(app);
 
 app.set( 'port', process.env.PORT || 3001 );
 
-app.get('/',function (req, res) {
-    res.send('Please login');
-});
-
 var server = app.listen(
     app.get( 'port' ),
     function() {

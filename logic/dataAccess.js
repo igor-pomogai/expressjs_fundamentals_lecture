@@ -1,8 +1,8 @@
-var userModel = require('./../models/userModel');
+var userModel = require('./../models/userModel').User;
 var fs = require('fs');
 
 exports.getAllUsr = function (cb) {
-    fs.readFile('./users.json', {encoding: 'utf-8'}, function (err, data) {
+    fs.readFile('./users.json', function (err, data) {
         if (err) return cb(err);
 
         try {
@@ -21,12 +21,12 @@ exports.getAllUsr = function (cb) {
 };
 
 exports.delUsr = function (id, cb) {
-    fs.readFile('./users.json', {encoding: 'utf-8'}, function (err, data) {
+    fs.readFile('./users.json', function (err, data) {
         if (err) return cb(err);
 
         try {
             var users = JSON.parse(data);
-            [].splice.call(users, id, 1);
+            users.splice(id, 1);
             fs.writeFile('./users.json', JSON.stringify(users), function (err) {
                 if (err) throw err;
             });
@@ -44,7 +44,7 @@ exports.delUsr = function (id, cb) {
 };
 
 exports.getUsrById = function (id, cb) {
-    fs.readFile('./users.json', {encoding: 'utf-8'}, function (err, data) {
+    fs.readFile('./users.json', function (err, data) {
         if (err) return cb(err);
 
         try {
@@ -60,14 +60,14 @@ exports.getUsrById = function (id, cb) {
 
         cb(null, users[id]);
     });
-}
+};
 
-exports.addUsr = function (userObj, cb) {
-    fs.readFile('./users.json', {encoding: 'utf-8'}, function (err, data) {
+exports.addUsr = function (user, cb) {
+    fs.readFile('./users.json', function (err, data) {
         if (err) throw err;
         try {
             var users = JSON.parse(data);
-            var newUser = new userModel(userObj);
+            var newUser = new userModel(user);
             users.push(newUser);
             fs.writeFile('./users.json', JSON.stringify(users), function (err) {
                 if (err) return err;
@@ -82,4 +82,4 @@ exports.addUsr = function (userObj, cb) {
         });
         cb(null, users);
     });
-}
+};
