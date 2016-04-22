@@ -1,11 +1,11 @@
 var util = require('util');
 
-exports.httpErr = function (status, message) {
+exports.HttpError = function (status, message) {
     this.status = status;
     this.message = message;
     Error.captureStackTrace(this, HttpError);
 };
 
-util.inherits(httpErr, Error);
+util.inherits(exports.HttpError, Error);
 
-httpErr.prototype.name = 'HttpError';
+exports.HttpError.prototype.name = 'HttpError';

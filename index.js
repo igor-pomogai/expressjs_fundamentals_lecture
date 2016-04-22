@@ -1,12 +1,13 @@
 var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
-var httpErr = require('./middleware/errorHandling');
+var HttpError = require('./middleware/errorHandling');
+var authChecker = require('./middleware/authChecker');
 
 app = express();
 
-app.use(httpErr);
-app.use(authChecker);
+app.use(HttpError.HttpError);
+app.use(authChecker.authChecker);
 
 
 app.use(bodyParser.json());
@@ -19,5 +20,6 @@ app.get('/', function (request, response) {
     response.send('It works!\n');
 });
 
-app.set('port', process.env.PORT || 3001);
+app.listen(3000);
+console.log('Yay');
 
